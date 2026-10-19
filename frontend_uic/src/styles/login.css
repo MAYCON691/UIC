@@ -1,0 +1,152 @@
+/* ==========================================================================
+   07 · LOGIN — todo lo exclusivo de la pantalla de ingreso
+   Estructura (BEM):  .login
+                        ├─ .login__bg        imagen jacha.png a pantalla completa
+                        ├─ .login__grid      cuadrícula sobre la imagen
+                        ├─ .login__toggle    botón día / noche (arriba a la derecha)
+                        └─ .login__card      tarjeta de cristal
+                             ├─ .login__brand (.login__logo .login__title .login__subtitle)
+                             ├─ .login__form  (.login__label .login__field …)
+                             └─ .login__footer
+   ========================================================================== */
+
+@layer components {
+  .login {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  /* Fondo: /public/jacha.png con velo suave y zoom lento */
+  .login__bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at center, var(--login-center) 0%, var(--login-edge) 100%),
+      url("/jacha.png") center / cover no-repeat;
+    animation: slowZoom 32s ease-in-out infinite alternate;
+  }
+  .login__grid {
+    z-index: 1;
+  }
+  .login__toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 20;
+  }
+
+  /* Tarjeta */
+  .login__card {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 24rem;
+    padding: 2rem;
+  }
+
+  /* Marca */
+  .login__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  .login__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    color: var(--accent-fg);
+    background: rgb(var(--accent) / 0.15);
+    border: 1px solid rgb(var(--accent) / 0.5);
+  }
+  .login__title {
+    margin-top: 1.25rem;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--text-strong);
+  }
+  .login__subtitle {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: rgb(var(--accent-text) / 0.8);
+  }
+
+  /* Formulario */
+  .login__form {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .login__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: rgb(var(--accent-text) / 0.9);
+  }
+  .login__field {
+    position: relative;
+    margin-top: 0.5rem;
+  }
+  .login__icon {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    width: 1rem;
+    height: 1rem;
+    color: rgb(var(--accent-text) / 0.75);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .login__input {
+    padding-left: 2.5rem;
+  }
+  .login__input--password {
+    padding-right: 2.5rem;
+  }
+  .login__eye {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    padding: 0.25rem;
+    color: var(--text-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: color 0.3s ease;
+  }
+  .login__eye:hover {
+    color: rgb(var(--accent-text));
+  }
+  .login__submit {
+    width: 100%;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+  }
+
+  /* Pie */
+  .login__footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--text-faint);
+  }
+}

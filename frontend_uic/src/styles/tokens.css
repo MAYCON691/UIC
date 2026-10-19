@@ -1,0 +1,67 @@
+/* ==========================================================================
+   01 · TOKENS — variables de diseño (tema OSCURO por defecto)
+   Todo el sistema lee estos valores. El tema claro solo los redefine
+   (ver theme-light.css). Los colores con "rgb(var(--x) / alfa)" guardan
+   solo los tres números R G B para poder aplicar transparencia.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* Fondo y tinta */
+  --bg: #05070f;
+  --ink: 255 255 255; /* tinta para bordes y rellenos sutiles */
+
+  /* Texto */
+  --text: #e2e8f0;
+  --text-strong: #ffffff;
+  --text-soft: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+
+  /* Acento principal (cian) y secundario (violeta) */
+  --accent: 34 211 238;
+  --accent-2: 139 92 246;
+  --accent-fg: #ecfeff; /* texto sobre botón de acento */
+  --accent-text: 165 243 252; /* texto/iconos de acento */
+
+  /* Estados */
+  --red: 248 113 113;
+  --red-fg: #fee2e2;
+  --red-text: #fecaca;
+  --amber: 251 191 36;
+  --amber-fg: #fde68a;
+  --emerald: 52 211 153;
+  --emerald-fg: #a7f3d0;
+
+  /* Cristal (glassmorphism) */
+  --glass-a: rgba(255, 255, 255, 0.09);
+  --glass-b: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  --strong-a: rgba(14, 22, 44, 0.8);
+  --strong-b: rgba(8, 12, 26, 0.7);
+  --strong-border: rgba(34, 211, 238, 0.28);
+  --strong-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 40px rgba(34, 211, 238, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* Esquinas HUD */
+  --hud: rgba(34, 211, 238, 0.85);
+
+  /* Fondos animados */
+  --scene-a: rgba(5, 7, 15, 0.8);
+  --scene-b: rgba(5, 7, 15, 0.93);
+  --aurora-1: rgba(34, 211, 238, 0.14);
+  --aurora-2: rgba(139, 92, 246, 0.16);
+  --grid-line: rgba(34, 211, 238, 0.06);
+
+  /* Login */
+  --login-center: rgba(5, 7, 15, 0.2);
+  --login-edge: rgba(5, 7, 15, 0.78);
+
+  /* Estructura de la app */
+  --sidebar-bg: rgba(7, 11, 23, 0.6);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --option-bg: #0b1222;
+}

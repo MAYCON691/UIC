@@ -1,0 +1,26 @@
+/* ==========================================================================
+   NUBE UIC · HOJA DE ESTILOS GLOBAL
+   Este archivo es solo el ÍNDICE: importa cada sección en orden.
+   Para cambiar algo, busca la sección correspondiente en src/styles/.
+
+     tokens.css        01 · colores y variables del tema oscuro (por defecto)
+     theme-light.css   02 · tema claro (modo día)
+     base.css          03 · html, body, tipografía, scroll, esquinas cuadradas
+     backgrounds.css   04 · fondos: imagen, aurora, cuadrícula
+     components.css    05 · cristal, botones, campos, etiquetas, modales, toggle
+     animations.css    06 · animaciones y keyframes
+     login.css         07 · pantalla de login
+     app-shell.css     08 · menú lateral, barra móvil y contenido
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap");
+@import "tailwindcss";
+
+@import "../styles/tokens.css";
+@import "../styles/theme-light.css";
+@import "../styles/base.css";
+@import "../styles/backgrounds.css";
+@import "../styles/components.css";
+@import "../styles/animations.css";
+@import "../styles/login.css";
+@import "../styles/app-shell.css";

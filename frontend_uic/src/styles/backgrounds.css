@@ -1,0 +1,41 @@
+/* ==========================================================================
+   04 · FONDOS — capas fijas detrás de toda la aplicación
+   Orden (de atrás hacia delante): .scene → .aurora → .grid-fx → contenido
+   ========================================================================== */
+
+/* Imagen /public/jacha.png con velo según el tema */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background:
+    linear-gradient(180deg, var(--scene-a), var(--scene-b)),
+    url("/jacha.png") center / cover no-repeat;
+}
+
+/* Resplandor de color en movimiento */
+.aurora {
+  position: fixed;
+  inset: -10%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 30rem at 15% 20%, var(--aurora-1), transparent 60%),
+    radial-gradient(36rem 28rem at 85% 78%, var(--aurora-2), transparent 60%);
+  animation: aurora 16s ease-in-out infinite alternate;
+}
+
+/* Cuadrícula tecnológica */
+.grid-fx {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, #000 15%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 15%, transparent 75%);
+  animation: gridMove 26s linear infinite;
+}
