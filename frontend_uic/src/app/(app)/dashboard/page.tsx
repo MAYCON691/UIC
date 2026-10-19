@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth';
-import SpaceView from '@/components/SpaceView';
+import SpaceView from '@/components/space/SpaceView';
 
 export default function DashboardPage() {
   const { user } = useAuth();

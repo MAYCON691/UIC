@@ -7,12 +7,14 @@ import { mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { StorageService } from '../common/storage.module';
+import { AuthModule } from '../auth/auth.module';
 import { AuthUser } from '../auth/auth-user';
 import { FilesController } from './files.controller';
 import { FilesService } from './files.service';
 
 @Module({
   imports: [
+    AuthModule, // JwtService para los tickets de descarga
     MulterModule.registerAsync({
       inject: [StorageService, ConfigService],
       useFactory: (storage: StorageService, config: ConfigService) => {
@@ -30,7 +32,7 @@ import { FilesService } from './files.service';
               cb(null, `${randomUUID()}${ext}`);
             },
           }),
-          limits: { fileSize: maxMb * 1024 * 1024 },
+          limits: { fileSize: maxMb * 1024 * 1024, files: 1 },
         };
       },
     }),

@@ -3,7 +3,9 @@
 import { useState, type FormEvent } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { api, errorMessage } from '@/lib/api';
+import { errorMessage } from '@/lib/http';
+import { PASSWORD_MAX, PASSWORD_MIN } from '@/lib/rules';
+import { authService } from '@/services';
 import { Avatar, btnPrimary, ErrorBox, inputCls, RoleBadge, Spinner } from '@/components/ui';
 
 export default function ProfilePage() {
@@ -29,7 +31,7 @@ export default function ProfilePage() {
     setNameMsg('');
     setNameErr('');
     try {
-      await api.patch('/auth/profile', { fullName: fullName.trim() });
+      await authService.updateProfile(fullName.trim());
       await refresh();
       setNameMsg('Nombre actualizado');
     } catch (err) {
@@ -49,7 +51,7 @@ export default function ProfilePage() {
     }
     setPwBusy(true);
     try {
-      await api.patch('/auth/password', { currentPassword: current, newPassword: next });
+      await authService.changePassword(current, next);
       setCurrent('');
       setNext('');
       setConfirm('');
@@ -123,7 +125,8 @@ export default function ProfilePage() {
             value={next}
             autoComplete="new-password"
             onChange={(e) => setNext(e.target.value)}
-            placeholder="Mínimo 6 caracteres"
+            maxLength={PASSWORD_MAX}
+            placeholder={`Mínimo ${PASSWORD_MIN} caracteres`}
           />
         </label>
         <label className="block text-sm font-medium text-slate-200">
@@ -146,7 +149,7 @@ export default function ProfilePage() {
         <button
           type="submit"
           className={btnPrimary}
-          disabled={pwBusy || !current || next.length < 6 || !confirm}
+          disabled={pwBusy || !current || next.length < PASSWORD_MIN || !confirm}
         >
           {pwBusy && <Spinner className="h-4 w-4 text-white" />}
           Cambiar contraseña

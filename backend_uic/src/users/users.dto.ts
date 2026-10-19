@@ -1,3 +1,4 @@
+import { PASSWORD_MAX, PASSWORD_MIN } from '../auth/auth.dto';
 import { IsBoolean, IsIn, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto {
@@ -10,7 +11,8 @@ export class CreateUserDto {
   username!: string;
 
   @IsString()
-  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  @MinLength(PASSWORD_MIN, { message: `La contraseña debe tener al menos ${PASSWORD_MIN} caracteres` })
+  @MaxLength(PASSWORD_MAX, { message: `La contraseña no puede pasar de ${PASSWORD_MAX} caracteres` })
   password!: string;
 
   @IsString()
@@ -31,7 +33,8 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(6)
+  @MinLength(PASSWORD_MIN, { message: `La contraseña debe tener al menos ${PASSWORD_MIN} caracteres` })
+  @MaxLength(PASSWORD_MAX, { message: `La contraseña no puede pasar de ${PASSWORD_MAX} caracteres` })
   password?: string;
 
   @IsOptional()

@@ -4,9 +4,9 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Cloud, Eye, EyeOff, Lock, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { errorMessage } from '@/lib/api';
+import { errorMessage } from '@/lib/http';
 import { btnPrimary, ErrorBox, inputCls, Spinner } from '@/components/ui';
-import ThemeToggle from '@/components/ThemeToggle';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 
 /* Estilos de esta pantalla: src/styles/login.css */
 
@@ -80,6 +80,7 @@ export default function LoginPage() {
                 className={`${inputCls} login__input login__input--password`}
                 type={show ? 'text' : 'password'}
                 value={password}
+                maxLength={128}
                 autoComplete="current-password"
                 onChange={(e) => setPassword(e.target.value)}
               />

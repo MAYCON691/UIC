@@ -1,9 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import { existsSync } from 'fs';
 import { PrismaService } from '../prisma/prisma.module';
 import { StorageService } from '../common/storage.module';
 import { AuthUser } from '../auth/auth-user';
+import { FILE_TICKET_TTL, FileTicketPayload, TOKEN_TYPE_FILE } from '../auth/token';
 import { assertCanView, assertOwner } from '../common/helpers';
 import { FilesQueryDto, UpdateFileDto } from './files.dto';
 
@@ -40,6 +42,7 @@ export class FilesService {
   constructor(
     private prisma: PrismaService,
     private storage: StorageService,
+    private jwt: JwtService,
   ) {}
 
   async upload(
@@ -123,6 +126,45 @@ export class FilesService {
     const abs = this.storage.absolute(file.storedPath);
     if (!existsSync(abs)) throw new NotFoundException('El archivo ya no existe en el servidor');
     return { file, abs };
+  }
+
+  /** Ticket firmado que solo vale para ver/descargar este archivo (el permiso se revisa aquí). */
+  async createTicket(user: AuthUser, id: number) {
+    await this.getForDownload(user, id);
+    const payload: FileTicketPayload = { sub: user.id, fid: id, typ: TOKEN_TYPE_FILE };
+    return this.jwt.signAsync(payload, { expiresIn: FILE_TICKET_TTL });
+  }
+
+  /**
+   * Identifica a quien descarga: con ticket (el normal desde el navegador)
+   * o con la cabecera Authorization (herramientas externas).
+   * El ticket solo sirve para el archivo para el que se emitió.
+   */
+  async authenticateDownload(
+    id: number,
+    ticket: string | undefined,
+    authorization: string | undefined,
+  ): Promise<AuthUser> {
+    const bearer = authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() : undefined;
+    const token = ticket || bearer;
+    if (!token) throw new UnauthorizedException();
+
+    let payload: { sub: number; typ?: string; fid?: number };
+    try {
+      payload = await this.jwt.verifyAsync(token);
+    } catch {
+      throw new UnauthorizedException();
+    }
+
+    if (ticket) {
+      if (payload.typ !== TOKEN_TYPE_FILE || payload.fid !== id) throw new UnauthorizedException();
+    } else if (payload.typ === TOKEN_TYPE_FILE) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    if (!user || !user.active) throw new UnauthorizedException();
+    return { id: user.id, username: user.username, fullName: user.fullName, role: user.role };
   }
 
   async update(user: AuthUser, id: number, dto: UpdateFileDto) {

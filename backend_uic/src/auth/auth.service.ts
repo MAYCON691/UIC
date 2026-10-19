@@ -1,9 +1,17 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compare, hash } from 'bcryptjs';
+import { compare, hash, hashSync } from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.module';
 import { USER_SELECT } from '../common/helpers';
 import { ChangePasswordDto, LoginDto, UpdateProfileDto } from './auth.dto';
+
+const BCRYPT_COST = 10;
+
+/**
+ * Hash de mentira: si el usuario no existe igual se hace una comparación,
+ * así el tiempo de respuesta no revela qué usuarios existen.
+ */
+const DUMMY_HASH = hashSync('contrasena-falsa-uic', BCRYPT_COST);
 
 @Injectable()
 export class AuthService {
@@ -17,7 +25,10 @@ export class AuthService {
       where: { username: { equals: dto.username.trim(), mode: 'insensitive' } },
     });
 
-    if (!user || !user.active || !(await compare(dto.password, user.password))) {
+    // Siempre se compara (aunque no exista el usuario) para tardar lo mismo.
+    const passwordOk = await compare(dto.password, user?.password ?? DUMMY_HASH);
+
+    if (!user || !user.active || !passwordOk) {
       throw new UnauthorizedException('Usuario o contraseña incorrectos');
     }
 
@@ -54,7 +65,7 @@ export class AuthService {
     }
     await this.prisma.user.update({
       where: { id: userId },
-      data: { password: await hash(dto.newPassword, 10) },
+      data: { password: await hash(dto.newPassword, BCRYPT_COST) },
     });
     return { message: 'Contraseña actualizada' };
   }

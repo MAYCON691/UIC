@@ -1,146 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pencil, Plus, Trash2, UserPlus } from 'lucide-react';
+import { Plus, UserPlus } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { api, errorMessage, formatBytes } from '@/lib/api';
+import { errorMessage } from '@/lib/http';
 import type { TeamUser } from '@/lib/types';
-import {
-  Avatar,
-  btnGhost,
-  btnPrimary,
-  ConfirmModal,
-  ErrorBox,
-  inputCls,
-  Modal,
-  RoleBadge,
-  Spinner,
-} from '@/components/ui';
-
-type EditableRole = 'ADMIN' | 'MONITORISTA';
-
-function UserFormModal({
-  target,
-  onClose,
-  onDone,
-}: {
-  target: TeamUser | null; // null = crear
-  onClose: () => void;
-  onDone: () => Promise<void>;
-}) {
-  const editing = !!target;
-  const [username, setUsername] = useState(target?.username ?? '');
-  const [fullName, setFullName] = useState(target?.fullName ?? '');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<EditableRole>(
-    target && target.role !== 'SUPERADMIN' ? target.role : 'MONITORISTA',
-  );
-  const [active, setActive] = useState(target?.active ?? true);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError('');
-    try {
-      if (editing) {
-        await api.patch(`/users/${target.id}`, {
-          fullName: fullName.trim(),
-          role,
-          active,
-          ...(password ? { password } : {}),
-        });
-      } else {
-        await api.post('/users', { username: username.trim(), fullName: fullName.trim(), password, role });
-      }
-      await onDone();
-    } catch (err) {
-      setError(errorMessage(err));
-      setBusy(false);
-    }
-  }
-
-  return (
-    <Modal title={editing ? `Editar a ${target.fullName}` : 'Crear usuario'} onClose={onClose}>
-      <form onSubmit={submit} className="space-y-4">
-        <label className="block text-sm font-medium text-slate-200">
-          Nombre de usuario
-          <input
-            className={`${inputCls} mt-1`}
-            value={username}
-            disabled={editing}
-            autoFocus={!editing}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Ej: jperez"
-          />
-        </label>
-        <label className="block text-sm font-medium text-slate-200">
-          Nombre completo
-          <input
-            className={`${inputCls} mt-1`}
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Ej: Juan Pérez"
-          />
-        </label>
-        <label className="block text-sm font-medium text-slate-200">
-          {editing ? 'Nueva contraseña (déjala vacía para no cambiarla)' : 'Contraseña'}
-          <input
-            className={`${inputCls} mt-1`}
-            type="text"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Mínimo 6 caracteres"
-            autoComplete="new-password"
-          />
-        </label>
-        <label className="block text-sm font-medium text-slate-200">
-          Rol
-          <select
-            className={`${inputCls} mt-1`}
-            value={role}
-            onChange={(e) => setRole(e.target.value as EditableRole)}
-          >
-            <option value="MONITORISTA">Monitorista (solo su propio espacio)</option>
-            <option value="ADMIN">Administrador (ve y descarga todo)</option>
-          </select>
-        </label>
-        {editing && (
-          <label className="flex items-center gap-2 text-sm text-slate-200">
-            <input
-              type="checkbox"
-              checked={active}
-              onChange={(e) => setActive(e.target.checked)}
-              className="h-4 w-4 accent-cyan-400"
-            />
-            Usuario activo (si lo desactivas ya no podrá ingresar)
-          </label>
-        )}
-        {error && <ErrorBox message={error} />}
-        <div className="flex justify-end gap-2">
-          <button type="button" className={btnGhost} onClick={onClose} disabled={busy}>
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className={btnPrimary}
-            disabled={
-              busy ||
-              !fullName.trim() ||
-              (!editing && (!username.trim() || password.length < 6)) ||
-              (editing && password.length > 0 && password.length < 6)
-            }
-          >
-            {busy && <Spinner className="h-4 w-4 text-white" />}
-            {editing ? 'Guardar cambios' : 'Crear usuario'}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
+import { usersService } from '@/services';
+import { btnPrimary, ConfirmModal, ErrorBox, Spinner } from '@/components/ui';
+import UserFormModal from '@/components/users/UserFormModal';
+import UserRow from '@/components/users/UserRow';
 
 export default function UsersPage() {
   const { user } = useAuth();
@@ -157,8 +26,7 @@ export default function UsersPage() {
 
   const load = useCallback(async () => {
     try {
-      const res = await api.get<TeamUser[]>('/users');
-      setUsers(res.data);
+      setUsers(await usersService.list());
       setError('');
     } catch (e) {
       setError(errorMessage(e));
@@ -194,45 +62,13 @@ export default function UsersPage() {
       ) : (
         <div className="space-y-2">
           {users.map((u, i) => (
-            <div
+            <UserRow
               key={u.id}
-              style={{ animationDelay: `${Math.min(i, 12) * 50}ms` }}
-              className="rise flex flex-col gap-3 border border-white/10 glass p-4 transition-all duration-300 hover:border-cyan-400/30 sm:flex-row sm:items-center"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <Avatar name={u.fullName} />
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-white">{u.fullName}</p>
-                  <p className="truncate text-xs text-slate-400">
-                    @{u.username} · {u._count.files} archivos · {formatBytes(u.storageBytes)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <RoleBadge role={u.role} />
-                {!u.active && (
-                  <span className="bg-white/15 px-2.5 py-0.5 text-xs font-medium text-slate-300">
-                    Inactivo
-                  </span>
-                )}
-              </div>
-              {u.role !== 'SUPERADMIN' ? (
-                <div className="flex gap-1">
-                  <button className={btnGhost} onClick={() => setForm({ target: u })} title="Editar">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    className={`${btnGhost} text-red-300 hover:bg-red-500/15`}
-                    onClick={() => setRemoving(u)}
-                    title="Eliminar"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="hidden w-[88px] sm:block" />
-              )}
-            </div>
+              user={u}
+              index={i}
+              onEdit={() => setForm({ target: u })}
+              onDelete={() => setRemoving(u)}
+            />
           ))}
           {users.length <= 1 && (
             <p className="flex items-center gap-1.5 pt-2 text-sm text-slate-400">
@@ -260,7 +96,7 @@ export default function UsersPage() {
           message={`¿Eliminar a ${removing.fullName}? Si ya subió archivos no se podrá eliminar: en ese caso desactívalo desde “Editar”.`}
           onClose={() => setRemoving(null)}
           onConfirm={async () => {
-            await api.delete(`/users/${removing.id}`);
+            await usersService.remove(removing.id);
             await load();
             setRemoving(null);
           }}

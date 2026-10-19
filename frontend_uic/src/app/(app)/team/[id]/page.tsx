@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { api, errorMessage, formatBytes } from '@/lib/api';
+import { errorMessage } from '@/lib/http';
+import { formatBytes } from '@/lib/format';
 import type { TeamUser } from '@/lib/types';
 import { Avatar, ErrorBox, RoleBadge, Spinner } from '@/components/ui';
-import SpaceView from '@/components/SpaceView';
+import { usersService } from '@/services';
+import SpaceView from '@/components/space/SpaceView';
 
 export default function UserSpacePage() {
   const { user } = useAuth();
@@ -24,9 +26,9 @@ export default function UserSpacePage() {
 
   useEffect(() => {
     if (!user || user.role === 'MONITORISTA' || !Number.isInteger(id)) return;
-    api
-      .get<TeamUser>(`/users/${id}`)
-      .then((res) => setTarget(res.data))
+    usersService
+      .get(id)
+      .then(setTarget)
       .catch((e) => setError(errorMessage(e)));
   }, [user, id]);
 

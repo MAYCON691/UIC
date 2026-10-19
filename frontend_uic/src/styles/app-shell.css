@@ -15,11 +15,20 @@
 
   /* ── Menú lateral (solo escritorio) ──────────────────────────────────── */
 
+  /* Fijo: se queda quieto mientras el contenido se desplaza.
+     (sticky + altura de pantalla; si el menú fuera más alto, se desplaza solo él) */
   .sidebar {
     display: none;
     flex-direction: column;
     flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
     width: 16rem;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--sidebar-bg);
     border-right: 1px solid rgb(var(--ink) / 0.1);
     -webkit-backdrop-filter: blur(24px);
@@ -141,7 +150,11 @@
     min-width: 0;
   }
 
+  /* Barra móvil: también fija arriba al desplazar */
   .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -203,6 +216,7 @@
 
   .shell__main {
     flex: 1;
+    min-width: 0;
     padding: 1rem;
   }
   @media (min-width: 40rem) {
