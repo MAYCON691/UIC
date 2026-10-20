@@ -1,0 +1,57 @@
+name: uic
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?falta POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-uicbase}
+    volumes:
+      - uic_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Sin "ports": la base solo es accesible desde los otros contenedores.
+
+  backend:
+    build:
+      context: ./backend_uic
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-uicbase}
+      JWT_SECRET: ${JWT_SECRET:?falta JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-12h}
+      FRONTEND_URL: http://${SERVER_HOST:?falta SERVER_HOST}:${FRONTEND_PORT:-3100}
+      UPLOADS_DIR: /app/uploads
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-2000}
+      SUPERADMIN_USER: ${SUPERADMIN_USER:?falta SUPERADMIN_USER}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD:?falta SUPERADMIN_PASSWORD}
+      TRUST_PROXY: ${TRUST_PROXY:-}
+    volumes:
+      - uic_uploads:/app/uploads
+    ports:
+      - "${BACKEND_PORT:-4100}:4000"
+
+  frontend:
+    build:
+      context: ./frontend_uic
+      args:
+        NEXT_PUBLIC_API_URL: http://${SERVER_HOST}:${BACKEND_PORT:-4100}/api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-3100}:3000"
+
+volumes:
+  uic_pgdata:
+  uic_uploads:
