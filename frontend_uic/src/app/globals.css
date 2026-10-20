@@ -11,6 +11,7 @@
      animations.css    06 · animaciones y keyframes
      login.css         07 · pantalla de login
      app-shell.css     08 · menú lateral, barra móvil y contenido
+     preview.css       09 · vista previa de archivos (Word, Excel, PowerPoint, texto)
    ========================================================================== */
 
 @import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap");
@@ -24,3 +25,4 @@
 @import "../styles/animations.css";
 @import "../styles/login.css";
 @import "../styles/app-shell.css";
+@import "../styles/preview.css";

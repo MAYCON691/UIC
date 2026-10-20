@@ -45,6 +45,13 @@ export const filesService = {
 
   ticketUrl,
 
+  /** Trae el archivo completo a memoria (para los visores de Word, Excel, PowerPoint y texto). */
+  async fetchBuffer(id: number): Promise<ArrayBuffer> {
+    const res = await fetch(await ticketUrl(id, true));
+    if (!res.ok) throw new Error('No se pudo cargar el archivo.');
+    return res.arrayBuffer();
+  },
+
   /** Inicia la descarga del archivo en el navegador. */
   async download(id: number) {
     window.location.assign(await ticketUrl(id));

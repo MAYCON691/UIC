@@ -2,6 +2,7 @@
 
 import { Download, Eye, Pencil, Trash2 } from 'lucide-react';
 import { fileKind, formatBytes, formatDate } from '@/lib/format';
+import { previewKind } from '@/lib/preview';
 import type { FileItem } from '@/lib/types';
 import { btnGhost } from '@/components/ui';
 import { KIND_STYLE } from './constants';
@@ -26,7 +27,7 @@ export default function FileRow({
 }) {
   const kind = fileKind(file.mimeType, file.originalName);
   const { icon: Icon, color } = KIND_STYLE[kind];
-  const canPreview = kind === 'image' || kind === 'video' || kind === 'audio' || kind === 'pdf';
+  const canPreview = previewKind(file.mimeType, file.originalName) !== null;
 
   return (
     <div
