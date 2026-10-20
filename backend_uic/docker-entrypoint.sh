@@ -12,4 +12,12 @@ echo "[uic] Verificando superadmin..."
 npx tsx prisma/seed.ts
 
 echo "[uic] Iniciando API..."
-exec node dist/main
+if [ -f dist/main.js ]; then
+  exec node dist/main.js
+elif [ -f dist/src/main.js ]; then
+  exec node dist/src/main.js
+else
+  echo "[uic] ERROR: no se encontro main.js dentro de dist. Contenido:"
+  find dist -name "main.js" || true
+  exit 1
+fi
